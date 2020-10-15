@@ -12,8 +12,6 @@ This is an extension to integrate OpenJscad with Vscode. It's mainly used for pr
 
 ![demo](demo.gif)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
 ## Requirements
 
 This is for OpenJscad v2, so you our design should use v2 syntax.
