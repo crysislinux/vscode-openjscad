@@ -41,7 +41,8 @@ export class OpenJscadPanel {
 			OpenJscadPanel.getTitle(fileUri),
 			column,
 			{
-				enableScripts: true,
+        enableScripts: true,
+        retainContextWhenHidden: true,
 				localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')]
 			}
 		);
