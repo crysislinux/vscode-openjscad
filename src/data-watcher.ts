@@ -71,7 +71,7 @@ export class DataWatcher {
           const [name, type] = fileOrDirectorie;
           if (type === vscode.FileType.Directory) {
             nextDirectories.push(vscode.Uri.joinPath(dir, name));
-          } else if (type === vscode.FileType.File) {
+          } else if (type === vscode.FileType.File && (name.endsWith('.js') || name.endsWith('.jscad'))) {
             const fullPath = dir.path + '/' + name;
             const source = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(dir, name));
             files.push({ name: fullPath.replace(uri.path + '/', ''), source: source.toString() });
