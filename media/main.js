@@ -13,8 +13,8 @@
   window.addEventListener('message', event => {
     const message = event.data; // The json data that the extension sent
     switch (message.command) {
-      case 'update':
-        viewer.update(message.source);
+      case 'setData':
+        viewer.update(message.data);
         break;
     }
   });
