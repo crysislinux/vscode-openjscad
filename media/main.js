@@ -3,7 +3,13 @@
 (function () {
   const vscode = acquireVsCodeApi();
 
+  const builder = new OpenJscad.OpenJscadBuilder();
   const viewer = new OpenJscad.OpenJscadViewer();
+
+  builder.on('solidsUpdated', (solids) => {
+    viewer.setDeisgnSolids(solids);
+  });
+
   viewer.attachTo(document.querySelector('.container'));
   vscode.postMessage({
     command: 'ready',
@@ -14,7 +20,7 @@
     const message = event.data; // The json data that the extension sent
     switch (message.command) {
       case 'setData':
-        viewer.update(message.data);
+        builder.setModelingSource(message.data);
         break;
     }
   });
