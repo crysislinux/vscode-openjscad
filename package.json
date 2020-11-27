@@ -2,7 +2,7 @@
   "name": "openjscad",
   "displayName": "OpenJscad",
   "description": "Integrate OpenJscad with Vscode",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "crysislinux",
   "icon": "logo.png",
   "engines": {
