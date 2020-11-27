@@ -118,7 +118,7 @@ export class OpenJscadPanel {
 	}
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
-    const viewerScript = vscode.Uri.joinPath(this._extensionUri, 'media', 'viewer.js');
+    const viewerScript = vscode.Uri.joinPath(this._extensionUri, 'media', 'openjscad-web-sdk.js');
 		const mainScript = vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js');
 
     // And the uri we use to load this script in the webview
