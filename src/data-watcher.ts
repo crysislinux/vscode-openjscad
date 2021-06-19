@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { OpenJscadDir } from './types';
 
@@ -19,10 +20,11 @@ export class DataWatcher {
     const stat = await vscode.workspace.fs.stat(uri);
     let glob: vscode.GlobPattern;
     if ((stat.type & vscode.FileType.File) === vscode.FileType.File) {
-      glob = uri.path;
+      const parsedPath = path.parse(uri.fsPath);
+      glob = new vscode.RelativePattern(parsedPath.dir, parsedPath.base);
       this._fileType = vscode.FileType.File;
     } else if ((stat.type & vscode.FileType.Directory) === vscode.FileType.Directory) {
-      glob = `${uri.path}/**/*.js`;
+      glob = new vscode.RelativePattern(uri.fsPath, `**/*.js`);
       this._fileType = vscode.FileType.Directory;
     } else {
       vscode.window.showErrorMessage(`Unknown file type: ${uri.fsPath}`);
@@ -72,9 +74,9 @@ export class DataWatcher {
           if (type === vscode.FileType.Directory) {
             nextDirectories.push(vscode.Uri.joinPath(dir, name));
           } else if (type === vscode.FileType.File && (name.endsWith('.js') || name.endsWith('.jscad'))) {
-            const fullPath = dir.path + '/' + name;
+            const fullPath = path.join(dir.fsPath, name);
             const source = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(dir, name));
-            files.push({ name: fullPath.replace(uri.path + '/', ''), source: source.toString() });
+            files.push({ name: path.relative(uri.fsPath, fullPath), source: source.toString() });
           }
         }
       }
@@ -85,11 +87,11 @@ export class DataWatcher {
   }
 
   public dispose() {
-		while (this._disposables.length) {
-			const x = this._disposables.pop();
-			if (x) {
-				x.dispose();
-			}
+    while (this._disposables.length) {
+      const x = this._disposables.pop();
+      if (x) {
+        x.dispose();
+      }
     }
     if (this._watcher) {
       this._watcher.dispose();
@@ -97,43 +99,43 @@ export class DataWatcher {
     }
     this._uri = undefined;
     this._fileType = undefined;
-	}
+  }
 }
 
 function createStructuredSource(files: { name: string, source: string }[]): OpenJscadDir[] {
-	if (!files) {
-	  return [];
-	}
+  if (!files) {
+    return [];
+  }
 
-	const structure = [{
-	  fullPath: '/root',
-	  name: 'root',
-	  children: [],
-	}];
+  const structure = [{
+    fullPath: '/root',
+    name: 'root',
+    children: [],
+  }];
 
-	files.forEach(f => {
-	  const { name, source } = f;
-	  const slices = ['/root', ...name.split('/')];
-	  let mountPoint = structure;
-	  let fullPath = '';
-	  slices.forEach((s) => {
-		fullPath = [fullPath, s].filter(p => !!p).join('/');
-		let nextMountPoint: any = mountPoint.find(p => p.fullPath === fullPath);
-		if (!nextMountPoint) {
-		  nextMountPoint = { fullPath, name: s };
-		  mountPoint.push(nextMountPoint);
-		}
-		if (/\.js$/.test(s)) {
-		  Object.assign(nextMountPoint, { ext: 'js', source });
-		  // the loop should end here;
-		} else {
-		  if (!nextMountPoint.children) {
-			nextMountPoint.children = [];
-		  }
-		  mountPoint = nextMountPoint.children;
-		}
-	  });
-	});
+  files.forEach(f => {
+    const { name, source } = f;
+    const slices = ['/root', ...name.split(path.sep)];
+    let mountPoint = structure;
+    let fullPath = '';
+    slices.forEach((s) => {
+      fullPath = [fullPath, s].filter(p => !!p).join('/');
+      let nextMountPoint: any = mountPoint.find(p => p.fullPath === fullPath);
+      if (!nextMountPoint) {
+        nextMountPoint = { fullPath, name: s };
+        mountPoint.push(nextMountPoint);
+      }
+      if (/\.js$/.test(s)) {
+        Object.assign(nextMountPoint, { ext: 'js', source });
+        // the loop should end here;
+      } else {
+        if (!nextMountPoint.children) {
+        nextMountPoint.children = [];
+        }
+        mountPoint = nextMountPoint.children;
+      }
+    });
+  });
 
-	return structure;
+  return structure;
 };
